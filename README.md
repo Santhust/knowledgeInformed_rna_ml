@@ -63,18 +63,19 @@ comparisons, and every conclusion is conditional on the simulator.
 
 ## Project website
 
-The full scientific narrative — study design, all four findings with figures,
-discussion, limitations, and outlook — is in **`docs/index.html`**.
+**Live site:** <https://santhust.github.io/knowledgeInformed_rna_ml/>
 
-View it locally, or enable GitHub Pages with source `/docs`:
+The full scientific narrative — study design, all four findings with figures,
+discussion, limitations, and outlook — is published there, and its source is
+**`docs/index.html`** in this repository.
+
+To view it locally instead:
 
 ```bash
 # from the repository root
 python -m http.server 8000 --directory docs
 # then open http://localhost:8000
 ```
-
-> The public GitHub Pages URL will be added here after publication.
 
 ## Repository structure
 
