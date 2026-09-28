@@ -1,0 +1,43 @@
+{
+  "diagnostic_only": true,
+  "used_for_training": false,
+  "used_for_tuning": false,
+  "latent_truth_used": true,
+  "is_new_experiment": false,
+  "purpose": "Persistence of the module-recovery diagnostic already computed and reported in Task 8 (notebooks/07_network_knowledge.ipynb). Saved so Figure 4 Panel A can be built from a result file rather than from values transcribed out of notebook output. No model was fitted.",
+  "source_files": {
+    "candidates": "data/generated/candidates.csv",
+    "latent_truth": "data/generated/latent_truth.csv",
+    "module_membership": "src/knowledge_graph.py"
+  },
+  "module_membership_source": "src/knowledge_graph.py -- the single authoritative source, unchanged. validate_groupings() is asserted at run time.",
+  "labels_used": false,
+  "quantities": {
+    "regulatory_vs_a_C": {
+      "reg_feature_1": 0.8188815530971337,
+      "reg_feature_2": 0.7646747760316931,
+      "regulatory_module_score": 0.8734718360130644,
+      "incorrect_module_1_score": 0.7167725373688235,
+      "incorrect_module_2_score": 0.6606756394210846
+    },
+    "pathway_vs_a_B": {
+      "pathway_feature_1": 0.8377914616950545,
+      "pathway_feature_2": 0.7752091766555425,
+      "pathway_module_score": 0.8874588059353973,
+      "incorrect_module_1_score": 0.7223065675989514,
+      "incorrect_module_2_score": 0.6921250769016549
+    }
+  },
+  "consistency_check_vs_task8_notebook": {
+    "max_abs_difference": 4.626311764788227e-07,
+    "tolerance": 0.0001,
+    "agrees": true,
+    "note": "Reference values are the ones rendered in the Task 8 notebook output. Agreement confirms this file is a persisted version of the already-established diagnostic, not a new result."
+  },
+  "interpretation_limits": "Diagnostic only. Agreement with a latent module activity describes the generative structure and is NOT a predictive metric, is not comparable to any AUROC, and implies no causality. Synthetic data; no biological claim.",
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6"
+  }
+}
