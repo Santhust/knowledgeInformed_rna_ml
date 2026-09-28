@@ -1,0 +1,54 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking / linting caches
+.mypy_cache/
+.ruff_cache/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Generated intermediate data
+data/generated/
+results/tmp/
+
+# Keep generated figures and published site assets tracked by default.
+# If large artifacts appear later, review them individually rather than
+# ignoring the entire figures/ or docs/ directories.
