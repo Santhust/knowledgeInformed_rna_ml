@@ -1,6 +1,7 @@
 numpy
 pandas
 scikit-learn
+scipy
 matplotlib
 networkx
 jupyter

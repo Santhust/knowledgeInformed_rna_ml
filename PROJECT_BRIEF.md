@@ -1,5 +1,11 @@
 # PROJECT_BRIEF.md
 
+> Sections 1–19 are the **original brief**, written before the experiments
+> were run. They are preserved as written and have not been rewritten to
+> match the final results.
+> Sections 20–22 record how the project actually evolved, the research
+> questions that emerged, and the current status.
+
 ## Project Title
 
 **Interpretable Knowledge-Informed Biological Classification**  
@@ -585,3 +591,92 @@ The intended high-level story is:
 > This project explores how different forms of scientific prior knowledge can be integrated into an interpretable biological classifier. Starting from a data-only baseline, it progressively adds simulated experimental FRET constraints, structural knowledge, and biological network/pathway information. Prototype-based decisions are used because they remain inspectable, and uncertain cases can be rejected rather than forced into a class. The project then tests whether prior knowledge improves robustness when experimental evidence becomes noisy.
 
 This project is a **learning and methodological exploration**, not a solved RNA-structure model.
+
+---
+
+## 20. Original Objective
+
+> *Recorded after the fact, to distinguish the starting intent from what the
+> experiments actually established. Sections 1–19 above remain the original
+> brief.*
+
+The project began with the objective:
+
+> **Explore interpretable, knowledge-informed machine learning in a controlled
+> RNA/FRET-inspired synthetic classification problem.**
+
+The starting expectation, stated in section 10, was that prior knowledge
+*should* make the classifier degrade more gracefully under noisy experimental
+evidence, and the expectation was explicitly not to be hard-coded. It was also
+anticipated that domain knowledge would generally be useful. Both assumptions
+turned out to be more optimistic than the data supported, which is itself part
+of what the study now reports.
+
+---
+
+## 21. Current Project Orientation
+
+As the experiments developed, the study narrowed and broadened at the same
+time. The specific question of section 2 — whether adding prior knowledge
+improves a prototype classifier in this toy problem — turned out to be
+answerable but not very informative on its own, because the data-only
+baselines were all close together and the prior effects were small.
+
+The study therefore became focused on a broader **methodological** question:
+
+> **How do different forms of prior knowledge affect predictive performance,
+> biological representation, selective prediction, and robustness?**
+
+The emphasis moved from *does this specific prior help this specific model* to
+*what does it actually take for injected knowledge to become predictive
+utility* — and, as a result, several negative results became the scientifically
+interesting outputs rather than disappointments.
+
+### Research questions
+
+1. Can a simple prototype classifier remain competitive with conventional
+   baselines?
+2. Do experimental, structural, and module-level priors improve prediction?
+3. Can biological structure be represented more faithfully without improving
+   discrimination?
+4. Can prototype geometry identify difficult predictions and support
+   abstention?
+5. How do frozen models respond to degraded experimental evidence?
+6. What important questions remain open — especially sample size and sample
+   efficiency, nonlinear problem complexity, and imperfect priors?
+
+### Where the answers live
+
+The full answers, with figures and exact values, are in `docs/index.html`.
+The repository intentionally does **not** carry a second, parallel results
+document; the hierarchy is:
+
+```text
+README.md           concise repository entry point
+PROJECT_BRIEF.md    rationale and evolved research questions (this file)
+docs/               full public scientific narrative
+notebooks/, results/ evidence and reproducibility
+AGENTS.md           repository-development rules
+```
+
+---
+
+## 22. Current Status
+
+- The **core synthetic study is complete** through robustness analysis,
+  selective prediction, and final figure generation.
+- **Final figures** are in `figures/final/`, with authoritative descriptions in
+  `figures/final/CAPTIONS.md`. They are generated deterministically from the
+  persisted result JSON files by `src/make_final_figures.py`, which fits no
+  model and recomputes no metric.
+- The **public scientific narrative** is in `docs/`, built as a static
+  GitHub Pages site.
+- **Future experiments proposed in the website and in section 21 above are not
+  implemented.** In particular, the learning-curve / sample-efficiency study
+  identified as the priority next experiment is a proposal only.
+- Persisted results, generated data, and final figures should be treated as
+  **frozen** unless a task explicitly requests a new experiment.
+
+The project remains a **synthetic methodological study**. Nothing in it
+constitutes real RNA-folding analysis, real FRET inference, or biological
+validation, and predictive relevance is never causal evidence.

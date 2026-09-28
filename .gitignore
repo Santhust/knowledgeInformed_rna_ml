@@ -26,6 +26,9 @@ htmlcov/
 *.swp
 *.swo
 
+# Local agent / tooling state (never part of the project)
+.kilo/
+
 # OS metadata
 .DS_Store
 Thumbs.db

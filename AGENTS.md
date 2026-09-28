@@ -11,6 +11,30 @@ and repository discipline.
 
 ---
 
+## Current Repository Status
+
+The core exploratory study is **complete** through robustness analysis,
+selective prediction, and final figure generation. Existing generated
+datasets (`data/generated/`), persisted result JSON files (`results/`), and
+final figures (`figures/final/`) should be treated as **frozen** unless a
+task explicitly requests a new experiment.
+
+- `docs/` is the **public scientific narrative**. It is the authoritative
+  public account of the project's findings; it is not a scratch file.
+- Documentation or presentation work **must not** silently regenerate or
+  alter established results.
+- New scientific investigations should be implemented as **clearly separated
+  extensions** — new result files, new figures, new site sections — not as
+  retroactive modifications of completed experiments.
+- When editing public-facing text, preserve the distinction between
+  **measured results**, **diagnostic-only latent analyses** (see
+  `results/module_latent_diagnostic.json`), **limitations**, and **future
+  work**. Do not let one blur into another.
+- Do not invent numbers. Every numeric claim in public-facing text must be
+  traceable to a saved result file.
+
+---
+
 ## 1. Read First
 
 Before making any change:
