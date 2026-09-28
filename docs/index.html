@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge-Informed ML: When Better Structure Does Not Mean Better Prediction</title>
+<meta name="description" content="A controlled synthetic study of biological priors, interpretable prototype models, selective prediction, and robustness.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="#top">Knowledge-Informed ML</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#study">Study</a>
+      <a href="#findings">Findings</a>
+      <a href="#discussion">Discussion</a>
+      <a href="#outlook">Outlook</a>
+      <a href="#reproducibility">Reproducibility</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================================================ HERO === -->
+<section class="hero">
+  <div class="wrap-wide">
+    <p class="eyebrow">Controlled synthetic study</p>
+    <h1>Knowledge-Informed ML: When Better Structure Does Not Mean Better Prediction</h1>
+    <p class="subtitle">A controlled synthetic study of biological priors, interpretable
+      prototype models, selective prediction, and robustness.</p>
+    <div class="statement">
+      <p>Domain knowledge is often expected to improve machine learning. In practice, the
+        outcome depends on how that knowledge is represented and used. This project uses a
+        controlled synthetic biological classification problem to examine how experimental,
+        structural, and module-level priors affect prediction, interpretability, selective
+        decision-making, and robustness.</p>
+    </div>
+    <p class="scope"><strong>Synthetic study</strong> — not a real RNA folding or FRET
+      prediction system.</p>
+  </div>
+</section>
+
+<!-- ==================================================== WHY IT MATTERS === -->
+<section id="why">
+  <div class="wrap">
+    <p class="section-label">Why this problem matters</p>
+    <h2>Having knowledge is not the same as using it well</h2>
+    <p class="lede">Biological machine learning is often attempted with limited data, while
+      the researcher simultaneously holds forms of knowledge that are not present in the
+      data table.</p>
+    <p>A mechanistic understanding, a pathway diagram, a structural constraint, or a set of
+      experimental expectations can all be available before any model is fitted. The natural
+      response is to pass that knowledge into the model and expect an improvement.</p>
+    <p>The real difficulty is elsewhere. The question is not whether knowledge exists, but
+      whether its <em>mathematical encoding</em> — a weighted distance, an engineered
+      feature, an aggregation rule, a regulariser — is one that this particular model and
+      this particular dataset can actually exploit. The same knowledge can be injected in
+      several ways, and the choice of mechanism can matter more than the knowledge itself.</p>
+    <p>There is a second reason to be careful. <strong>Prediction and biological
+      faithfulness are not the same objective.</strong> A representation can become more
+      faithful to the intended biology while becoming no more useful for telling classes
+      apart. Keeping those two goals separate is what makes the results below readable.</p>
+  </div>
+</section>
+
+<!-- ===================================================== STUDY DESIGN === -->
+<section id="study">
+  <div class="wrap">
+    <p class="section-label">Controlled synthetic study design</p>
+    <h2>A simulator where the hidden relationships are visible</h2>
+    <p class="lede">Everything on this page comes from one synthetic dataset with a known
+      generating rule. That is the point of the design: it makes normally hidden structure
+      inspectable.</p>
+    <p>The study uses:</p>
+    <ul>
+      <li><strong>latent biological states</strong> that no model is ever given;</li>
+      <li><strong>experimental / FRET-like evidence</strong> read out from a separate,
+        deliberately independent measurement process;</li>
+      <li><strong>structural evidence</strong> — free-energy-like score, stem count,
+        structural consistency;</li>
+      <li><strong>regulatory and pathway module evidence</strong> organised into four
+        predefined modules;</li>
+      <li><strong>noisy observable features</strong>, including two pure distractors that
+        carry no label information;</li>
+      <li>a <strong>binary plausibility label</strong>, sampled rather than read off, so
+        the two classes overlap and the problem is not trivial;</li>
+      <li><strong>latent variables retained only for diagnostic analysis</strong> — recorded
+        for one figure, never used for training or tuning.</li>
+    </ul>
+  </div>
+
+  <figure class="breakout">
+    <div class="fig-frame">
+      <img src="assets/fig01_project_concept.svg"
+           onerror="this.onerror=null;this.src='assets/fig01_project_concept.png'"
+           alt="Two-panel schematic. Panel A: latent generative structure, showing a shared quality factor feeding module activities and structural latents, with the FRET measurement process drawn as an independent exogenous block, all entering a latent plausibility score that is sampled into the observed label. Panel B: measurement channel, showing each observed column beneath the latent it reads out, with two noise features having no parent, forming a model-facing dataset of twelve features plus the label.">
+    </div>
+    <figcaption><b>Figure 1.</b> Synthetic data-generating structure: what is latent,
+      what is measured, and what a model may see. Panel A is the latent structure; Panel B
+      is the measurement channel. The plausibility score is built from latent states only,
+      so no observed feature causes it. The latent diagnostic truth is recorded but has no
+      arrow into the dataset. Schematic only — no data and no results. Verified against
+      the generator source.</figcaption>
+  </figure>
+
+  <div class="wrap">
+    <div class="statement caution">
+      <p>The simulator is designed to make otherwise hidden relationships observable. It is
+        not intended to reproduce real RNA biophysics.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== BASELINES === -->
+<section id="baselines">
+  <div class="wrap">
+    <p class="section-label">Baseline models</p>
+    <h2>The data-only baselines are all close together</h2>
+    <p class="lede">Before any prior knowledge is introduced, four straightforward models are
+      compared on the identical five-fold partition.</p>
+
+    <div class="table-scroll">
+      <table>
+        <caption>Cross-validated AUROC, mean ± SD over 5 folds, n = 800. Identical folds and
+          preprocessing for every row.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col" class="num">AUROC</th>
+            <th scope="col">Prior knowledge used</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Logistic regression</td>
+            <td class="num">0.8290 ± 0.0156</td>
+            <td>none</td>
+          </tr>
+          <tr>
+            <td>Plain prototype</td>
+            <td class="num">0.8276 ± 0.0168</td>
+            <td>none</td>
+          </tr>
+          <tr>
+            <td>Relevance-weighted prototype</td>
+            <td class="num">0.8277 ± 0.0172</td>
+            <td>none (weights learned from data)</td>
+          </tr>
+          <tr>
+            <td>Gradient boosting (HGB)</td>
+            <td class="num">0.8054 ± 0.0233</td>
+            <td>none</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Interpretation: <strong>a simple regularised linear model is already highly
+      competitive in this synthetic, moderate-dimensional setting.</strong> The three closest
+      baselines sit within roughly one fold-level standard deviation of each other, and
+      learning explicit relevance weights did not move the prototype off the uniform
+      baseline.</p>
+
+    <div class="statement caution">
+      <p>With approximately 800 samples and a modest number of observed features, this study
+        operates in a regime where logistic regression can be difficult to beat. The effect
+        of sample size was <strong>not</strong> systematically explored.</p>
+    </div>
+
+    <details>
+      <summary>Supporting figure: baseline comparison and paired differences</summary>
+      <figure>
+        <div class="fig-frame">
+          <img src="assets/fig02_model_comparison.svg"
+               onerror="this.onerror=null;this.src='assets/fig02_model_comparison.png'"
+               alt="Two panels. Left: absolute AUROC for four baselines on a zoomed axis spanning 0.74 to 0.88, with logistic regression highest at about 0.829 and gradient boosting lowest at about 0.805. Right: paired fold-level differences against logistic regression, all small and mostly within fold-level spread.">
+        </div>
+        <figcaption><b>Figure 2.</b> Data-only baselines under the shared 5-fold protocol.
+          The left panel's axis is zoomed to 0.74–0.88 of the natural 0–1 range and says so on
+          the plot; chance and the rest of the scale are off-scale below. The right panel shows
+          paired differences against logistic regression on identical folds. Relevance weighting
+          is a negligible change relative to the plain prototype, and several differences sit
+          inside the fold-level spread.</figcaption>
+      </figure>
+    </details>
+
+    <p class="scope-note">This baseline similarity is the reason the rest of the study tests
+      <em>what a prior adds</em>, rather than which architecture wins.</p>
+  </div>
+</section>
+
+<!-- ======================================================= FINDINGS === -->
+<section id="findings" class="band">
+  <div class="wrap">
+    <p class="section-label">Findings</p>
+    <h2>Four results that challenge simple expectations</h2>
+    <p class="lede">Each finding below is presented with the figure that produced it. Effect
+      sizes are deliberately kept modest in both the text and the plots: no statistical test
+      was performed on any of these model comparisons, so no significance is claimed about
+      them.</p>
+  </div>
+</section>
+
+<section id="finding-1">
+  <div class="wrap-wide">
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <p class="section-label">Finding 1</p>
+      <h2>Prior knowledge helped only when its representation was useful</h2>
+      <p class="lede">Several knowledge-informed conditions were tested across three prior
+        families — experimental/FRET-like, structural, and network/module — alongside the
+        relevant data-only or complexity-matched controls. All four effects are small, and
+        the largest one is negative.</p>
+    </div>
+
+    <figure class="full">
+      <div class="fig-frame">
+        <img src="assets/fig03_prior_effects.svg"
+             onerror="this.onerror=null;this.src='assets/fig03_prior_effects.png'"
+             alt="Horizontal dot plot of eight rows. Each row shows individual fold differences as small dots and the mean as a diamond, against a zero line. Rows: M1 engineered FRET feature plus 0.0008; M1 uncertainty-aware distance minus 0.0304; M2 structural prior plus 0.0024; M2 generic nonlinear control plus 0.0002; M3 correct module aggregation LR minus 0.0033; M3 incorrect grouping LR minus 0.0054; M3 correct module aggregation prototype minus 0.0031; M3 incorrect grouping prototype minus 0.0006.">
+      </div>
+      <figcaption><b>Figure 3.</b> Effect of each knowledge prior on AUROC, shown next to its
+        own control. Diamond = mean over the 5 folds, dots = individual folds. Marker shape
+        carries exactly one meaning and does not encode prior versus control — which rows are
+        priors is read from the labels. The x-axis is not compressed to exaggerate the
+        deltas.</figcaption>
+    </figure>
+
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <div class="table-scroll">
+        <table>
+          <caption>Change in cross-validated AUROC, each condition against its own baseline.
+            Sources: <code>results/fret_knowledge_cv.json</code>,
+            <code>results/structural_knowledge_cv.json</code>,
+            <code>results/network_knowledge_cv.json</code>.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Condition</th>
+              <th scope="col" class="num">Δ AUROC</th>
+              <th scope="col" class="num">SD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>M1 engineered FRET feature</td><td class="num">+0.0008</td><td class="num">0.0023</td></tr>
+            <tr><td>M1 uncertainty-aware distance</td><td class="num"><strong>−0.0304</strong></td><td class="num">0.0173</td></tr>
+            <tr><td>M2 structural prior (logistic)</td><td class="num">+0.0024</td><td class="num">0.0056</td></tr>
+            <tr><td>M2 generic nonlinear control</td><td class="num">+0.0002</td><td class="num">0.0014</td></tr>
+            <tr><td>M3 correct module aggregation (logistic)</td><td class="num">−0.0033</td><td class="num">0.0066</td></tr>
+            <tr><td>M3 incorrect grouping (logistic)</td><td class="num">−0.0054</td><td class="num">0.0090</td></tr>
+            <tr><td>M3 correct module aggregation (prototype)</td><td class="num">−0.0031</td><td class="num">0.0059</td></tr>
+            <tr><td>M3 incorrect grouping (prototype)</td><td class="num">−0.0006</td><td class="num">0.0042</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul>
+        <li>The <strong>engineered FRET feature is approximately neutral</strong>
+          (+0.0008 AUROC), providing little evidence of predictive benefit in this
+          setting.</li>
+        <li>The <strong>structural prior produces a small positive change</strong>
+          (+0.0024 AUROC), larger than the selected generic nonlinear control
+          (+0.0002) in this experiment. The effect is modest and no statistical
+          significance test was performed, so it should not be generalized beyond
+          this synthetic setting.</li>
+        <li>The <strong>uncertainty-aware distance reduces AUROC by about 0.03</strong>. This
+          is the largest single effect in the project, and it is a regression. It is reported
+          as measured.</li>
+        <li><strong>Correct module aggregation does not improve AUROC</strong>, in either model
+          family, and does not separate cleanly from the deliberately incorrect grouping.</li>
+      </ul>
+
+      <div class="statement">
+        <p>The result is not that domain knowledge is useless. It is that
+          <strong>knowledge and predictive utility are different things</strong>, and the
+          mathematical mechanism used to inject knowledge matters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="finding-2">
+  <div class="wrap-wide">
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <p class="section-label">Finding 2 — the central result</p>
+      <h2>Better recovery of biological structure did not guarantee better prediction</h2>
+      <p class="lede">The module aggregation was checked against the latent states it was
+        designed to recover. It recovered them. Prediction did not follow.</p>
+    </div>
+
+    <figure class="full">
+      <div class="fig-frame">
+        <img src="assets/fig04_network_dissociation.svg"
+             onerror="this.onerror=null;this.src='assets/fig04_network_dissociation.png'"
+             alt="Two panels. Left: horizontal bars of correlation with the latent module state, split into a regulatory block against latent a_C and a pathway block against latent a_B. The correct module score is highest in both blocks, 0.873 and 0.887, above the individual features and the incorrect groupings. Right: change in cross-validated AUROC for four conditions, all near or slightly below zero with error bars crossing zero.">
+      </div>
+      <figcaption><b>Figure 4.</b> Latent module recovery dissociates from predictive
+        performance. <b>Panel A is diagnostic only</b> — it uses latent truth, is not a
+        predictive metric, is not comparable to any AUROC here, and is not placed on a shared
+        axis with Panel B. Panel B is the cross-validated predictive result.</figcaption>
+    </figure>
+
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <div class="grid-2">
+        <div class="card">
+          <h4>Panel A — structural recovery</h4>
+          <p>Correlation of each candidate aggregation with its intended latent module state.
+            For the regulatory module, the correct score reaches <strong>0.873</strong>
+            against 0.819 and 0.765 for the individual features and 0.717 / 0.661 for the
+            incorrect groupings. For the pathway module, <strong>0.887</strong> against 0.838
+            and 0.775, and 0.722 / 0.692.</p>
+          <p>The correct aggregation tracks its own module state better than either
+            individual proxy, in both modules. Source:
+            <code>results/module_latent_diagnostic.json</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Panel B — predictive effect</h4>
+          <p>Change in cross-validated AUROC: correct minus data-only baseline
+            <strong>−0.0033</strong> (logistic) and <strong>−0.0031</strong> (prototype);
+            correct minus incorrect grouping <strong>−0.0054</strong> and
+            <strong>−0.0006</strong>.</p>
+          <p>Correct aggregation does not improve discrimination in either family, and the
+            deliberately incorrect grouping performs similarly. Source:
+            <code>results/network_knowledge_cv.json</code>.</p>
+        </div>
+      </div>
+
+      <ul>
+        <li>The correlations in Panel A are <strong>diagnostic-only</strong>: they use latent
+          truth, were never used for training or tuning, and are not predictive metrics.</li>
+        <li>Predictive AUROC nevertheless did not improve.</li>
+        <li>The incorrect grouping performed similarly, or slightly better predictively.</li>
+        <li>This <strong>does not establish that biological correctness caused the
+          loss</strong>. The two panels are kept deliberately unlinked.</li>
+      </ul>
+
+      <div class="statement">
+        <p>A representation can become more faithful to the intended biological organization
+          while simultaneously losing information useful for discrimination.</p>
+      </div>
+
+      <p class="scope-note">Reading the recovery in Panel A as evidence that the prior works
+        would be a mistake. The simulator's latent structure was recovered, and the predictive
+        metric did not improve.</p>
+    </div>
+  </div>
+</section>
+
+<section id="finding-3">
+  <div class="wrap-wide">
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <p class="section-label">Finding 3</p>
+      <h2>Prototype geometry can identify difficult cases</h2>
+      <p class="lede">The classifier is allowed to abstain. The signal it uses is not a
+        probability — it is the distance margin between the two prototypes.</p>
+    </div>
+
+    <figure class="full">
+      <div class="fig-frame">
+        <img src="assets/fig05_rejection_tradeoff.svg"
+             onerror="this.onerror=null;this.src='assets/fig05_rejection_tradeoff.png'"
+             alt="Two panels. Left: coverage on the x-axis against accuracy among accepted samples on the y-axis. The margin-based curve rises from about 0.751 accuracy at full coverage to about 0.889 at roughly 5.6 percent coverage, while the matched random control stays flat near 0.751 with a widening shaded band. Right: error rate among accepted falls from about 0.25 to 0.11 across thresholds while error among rejected stays much higher, from about 0.64 down to 0.25.">
+      </div>
+      <figcaption><b>Figure 5.</b> Rejection trades coverage for accuracy on accepted cases.
+        The matched random-rejection control matters: accepted accuracy rises for <em>any</em>
+        rule that shrinks the accepted set, so only the gap against matched randomness shows
+        that the margin identifies genuinely hard cases. No threshold is selected or
+        recommended anywhere in this study.</figcaption>
+    </figure>
+
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <ul>
+        <li>The <strong>prototype distance margin acts as an empirical difficulty
+          signal</strong>. Error rate falls steadily across quintiles of the margin, from
+          <strong>0.425</strong> in the most ambiguous quintile to <strong>0.113</strong> in
+          the fourth.</li>
+        <li><strong>Low-margin cases are more error-prone</strong>, which is the direct
+          justification for allowing abstention at all.</li>
+        <li><strong>Rejecting them raises accuracy among accepted samples</strong>: accepted
+          accuracy rises from 0.7512 at full coverage to 0.8546 at 49.0% coverage and 0.8715
+          at 22.4% coverage.</li>
+        <li><strong>Matched random rejection does not produce the same gain.</strong> The
+          control stays flat near 0.751 across the whole sweep, inside a widening band of ±2
+          standard deviations, while the margin rule sits clearly above it.</li>
+        <li><strong>Higher accepted accuracy is purchased with lower coverage.</strong> The
+          curve is a trade-off, not an improvement: every step up in accepted accuracy costs
+          answered samples.</li>
+      </ul>
+
+      <div class="statement caution">
+        <p>The rejected cases were <strong>not</strong> significantly closer to the
+          simulator's latent probability of 0.5, so the margin should <strong>not</strong> be
+          interpreted as calibrated probabilistic uncertainty. It orders difficulty well in
+          this experiment, but the latent diagnostic did not show evidence that the margin
+          tracks the generator's probability-based ambiguity.
+          <span style="color:var(--muted); font-size:0.9em;">Source:
+          <code>notebooks/08_rejection.ipynb</code>, latent diagnostic.</span></p>
+      </div>
+
+      <p class="scope-note">The low-coverage end of the curve is shown rather than hidden. It
+        rests on a handful of accepted samples and is unstable; it is not presented as a
+        headline figure, and no threshold is recommended.</p>
+    </div>
+  </div>
+</section>
+
+<section id="finding-4">
+  <div class="wrap-wide">
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <p class="section-label">Finding 4</p>
+      <h2>Stress testing can reveal why a model behaves as it does</h2>
+      <p class="lede">Models were trained once on the original folds and then evaluated on
+        progressively noisier held-out folds. Nothing was retuned, and only the FRET-like
+        columns were perturbed.</p>
+    </div>
+
+    <figure class="full">
+      <div class="fig-frame">
+        <img src="assets/fig06_robustness.svg"
+             onerror="this.onerror=null;this.src='assets/fig06_robustness.png'"
+             alt="Two panels across FRET noise multipliers 1.0, 1.5, 2.0, 3.0 and 5.0. Left: absolute AUROC, with logistic regression falling most steeply from about 0.829 to 0.800, the plain prototype falling slightly, and the uncertainty-aware model rising from about 0.797 to 0.822. Right: change against each model's own baseline, showing logistic regression at minus 0.0293 at multiplier 5, the prototype at minus 0.0088, and the uncertainty-aware model at plus 0.0255.">
+      </div>
+      <figcaption><b>Figure 6.</b> Robustness of frozen models to degraded FRET-like evidence.
+        Every point is the cross-validated mean over the same 5 folds, re-evaluated on a
+        noise-perturbed copy of the held-out fold — not a single run. The non-monotonic path is
+        plotted as measured and is not smoothed.</figcaption>
+    </figure>
+
+    <div class="wrap" style="max-width:var(--measure); margin:0;">
+      <ul>
+        <li><strong>Logistic regression degrades more than the plain prototype</strong> under
+          worsening FRET-like evidence: at the largest multiplier the change against its own
+          baseline is <strong>−0.0293</strong> for logistic regression against
+          <strong>−0.0088</strong> for the prototype.</li>
+        <li><strong>The prototype degrades only modestly</strong> under this particular
+          perturbation.</li>
+        <li>The structural and network priors show <strong>no clear indirect
+          protection</strong> (−0.0063 and −0.0103 at the same multiplier).</li>
+        <li><strong>The uncertainty-aware model improves as noise increases</strong>, by
+          <strong>+0.0255</strong> — and <strong>that improvement is not robustness</strong>.
+          Increasing the measured uncertainty weakens an inverse-variance weighting that was
+          already too aggressive at baseline, so the perturbation partially removes a model
+          defect. The worst model in Finding 1 is the one that improves here.</li>
+      </ul>
+
+      <div class="statement">
+        <p><strong>Robustness should be investigated mechanistically rather than inferred from
+          a single performance curve.</strong> A rising curve can indicate a repaired defect
+          rather than a durable advantage.</p>
+      </div>
+
+      <p class="scope-note"><strong>Scope:</strong> only FRET-like degradation was tested.
+        Structural and network feature corruption were not tested, and no claim is made about
+        them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== DISCUSSION === -->
+<section id="discussion">
+  <div class="wrap">
+    <p class="section-label">Discussion</p>
+    <h2>What the four findings add up to</h2>
+    <p class="lede">Stepping back from the individual experiments.</p>
+
+    <h3>Knowledge versus predictive signal</h3>
+    <p>Biological knowledge can improve representation without improving classification.
+      Finding 2 is the clearest case: the intended latent structure was recovered more
+      faithfully than by any alternative grouping, and discrimination did not follow. The two
+      qualities have to be measured separately, because a method can succeed on one while
+      standing still on the other.</p>
+
+    <h3>Model complexity</h3>
+    <p>More complex models are not automatically useful when a strong simple baseline already
+      captures much of the signal. Here a regularised linear model matched or exceeded both
+      prototype variants and a gradient boosting model, on a problem with 800 samples and a
+      modest number of features. Complexity earns its place only once the problem demands
+      it.</p>
+
+    <h3>Interpretability versus accuracy</h3>
+    <p>These are related but distinct objectives and should be evaluated as such. The
+      prototype model was chosen because its decision rule can be written down and inspected,
+      not because it was expected to win. It did not lose — but the reason to keep it is
+      that its margin, its prototypes and its relevance weights are all inspectable.</p>
+
+    <h3>Confidence versus uncertainty</h3>
+    <p>A model-specific confidence signal may identify difficult decisions without
+      representing calibrated probability. The prototype margin separates harder from easier
+      cases in this experiment, yet rejected samples were not closer to the simulator's own
+      latent probability of 0.5. A difficulty ranking and a probability estimate are different
+      objects, and only the first is on offer here.</p>
+
+    <h3>Controlled synthetic studies</h3>
+    <p>Synthetic systems allow access to hidden ground truth that is often unavailable in
+      real biology — that access is what made Finding 2 possible at all. The corresponding
+      cost is that conclusions must remain conditional on the simulator. Nothing here has been
+      tested against real measurements.</p>
+  </div>
+</section>
+
+<!-- ===================================================== LIMITATIONS === -->
+<section id="limitations">
+  <div class="wrap">
+    <p class="section-label">Limitations</p>
+    <h2>What this study cannot support</h2>
+    <p class="lede">Stated plainly, because these bound every claim above.</p>
+
+    <div class="statement caution">
+      <ul style="margin-bottom:0;">
+        <li><strong>Synthetic rather than real biological data.</strong> The dataset is
+          simulated and the FRET-like measurements are generated, not observed.</li>
+        <li><strong>Approximately 800 samples</strong>, and a <strong>modest feature
+          dimensionality</strong>.</li>
+        <li><strong>Strong performance of logistic regression in this regime</strong>, which
+          makes small prior effects hard to distinguish from noise.</li>
+        <li><strong>No systematic sample-size analysis.</strong> Learning curves across
+          training-set sizes were not run.</li>
+        <li><strong>No systematic variation of problem nonlinearity.</strong> The degree of
+          interaction and threshold structure in the generating rule was fixed.</li>
+        <li><strong>No statistical significance tests</strong> for the small model
+          differences, and therefore no significance claims about model differences anywhere
+          on this page. (The one significance check that does exist is the latent diagnostic
+          cited in Finding 3.)</li>
+        <li><strong>Simplified biological modules</strong> — four synthetic modules in a
+          two-level hierarchy, not curated pathways.</li>
+        <li><strong>A simplified uncertainty model</strong>, whose over-aggressive weighting is
+          itself one of the findings.</li>
+        <li><strong>Only FRET-like robustness perturbation was tested.</strong> Structural and
+          network corruption were not explored.</li>
+        <li><strong>No claim of superiority</strong> over deep learning or modern biological
+          foundation models. None was compared against.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== OUTLOOK === -->
+<section id="outlook">
+  <div class="wrap">
+    <p class="section-label">Outlook</p>
+    <h2>Future directions, organised by the questions this study opened</h2>
+    <p class="lede">None of the following has been carried out. They are the experiments the
+      results point toward.</p>
+
+    <h3><span class="outlook-letter">A.</span> Sample size and sample efficiency</h3>
+    <p>Run learning-curve experiments across multiple training sizes, holding the generative
+      mechanism fixed. <strong>Does biological prior knowledge provide its greatest benefit in
+      low-data regimes?</strong> The baselines here are close enough that a difference could
+      plausibly appear only when data are scarce. Multiple independent generator seeds would
+      be needed to separate a genuine sample-size effect from the quirks of one simulated
+      dataset.</p>
+
+    <h3><span class="outlook-letter">B.</span> Problem complexity</h3>
+    <p>Explore increasingly nonlinear generative relationships: interactions, thresholds,
+      hierarchical dependencies, context-dependent effects, and multimodal populations.
+      <strong>When does model flexibility become necessary rather than merely available?</strong>
+      This is the missing axis behind the current limitation that logistic regression is hard
+      to beat here.</p>
+
+    <h3><span class="outlook-letter">C.</span> Imperfect biological priors</h3>
+    <p>Compare correct, incomplete, noisy, partially incorrect and contradictory prior
+      knowledge — the incorrect-grouping control in Finding 2 is a first step in this
+      direction. <strong>How much prior error can a knowledge-informed model tolerate before
+      the prior becomes harmful?</strong></p>
+
+    <h3><span class="outlook-letter">D.</span> Alternative mechanisms for knowledge
+      integration</h3>
+    <p>Future work may compare feature engineering, soft regularisation, constrained losses,
+      graph-based architectures, probabilistic or Bayesian priors, and post-hoc biological
+      validation. Finding 1 shows that the mechanism, not the knowledge, is often the deciding
+      variable — so the mechanism itself is the thing to vary.</p>
+
+    <h3><span class="outlook-letter">E.</span> Multiple forms of uncertainty</h3>
+    <p>Keep four sources distinct rather than collapsing them into one margin: <strong>measurement
+      uncertainty</strong> (the FRET-like error model), <strong>model uncertainty</strong>
+      (limited training data), <strong>distribution shift</strong> (the robustness setting),
+      and <strong>biological ambiguity</strong> (the simulator's own latent probability). The
+      margin in Finding 3 speaks to difficulty, not to any one of these in particular.</p>
+
+    <h3><span class="outlook-letter">F.</span> Semi-synthetic and real biological
+      validation</h3>
+    <p>A credible progression would run: controlled synthetic data → semi-synthetic
+      biological data → real RNA, structural and experimental benchmarks. <strong>The present
+      project has completed the first of these stages only.</strong> No stage beyond it has
+      been attempted, and nothing here should be read as evidence that the later stages would
+      succeed.</p>
+
+    <div class="priority">
+      <h3>A priority next experiment: sample size × prior knowledge</h3>
+      <p>Hold the generative mechanism fixed, vary the training-set size, repeat across
+        independent simulated datasets, and measure whether knowledge-informed models reach a
+        given predictive performance with <em>fewer</em> samples than purely data-driven
+        models.</p>
+      <p style="margin-bottom:0;">This tests whether prior knowledge acts as a
+        <strong>sample-efficiency mechanism</strong> — the most direct way to answer the
+        question the baseline table raises. It is proposed here and has not been
+        implemented.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== REPRODUCIBILITY === -->
+<section id="reproducibility">
+  <div class="wrap">
+    <p class="section-label">Reproducibility</p>
+    <h2>How to reproduce everything on this page</h2>
+
+    <ul>
+      <li><strong>Deterministic synthetic generator</strong> with fixed random seeds.</li>
+      <li><strong>Fixed five-fold cross-validation</strong> — stratified, 5 splits,
+        <code>random_state=0</code>, preprocessing refit inside each training fold.</li>
+      <li><strong>Fold fingerprint</strong> <code>9b587aa3d19a36f7</code>, asserted at load
+        time so every result file provably used the same partition.</li>
+      <li><strong>Saved JSON results</strong> in <code>results/</code>, one file per
+        experiment.</li>
+      <li><strong>Deterministic figure generation</strong> — the six figures are built from
+        those JSON files by <code>src/make_final_figures.py</code>, which fits nothing and
+        recomputes nothing, and fails loudly if a source or key is missing. Repeated runs are
+        byte-identical.</li>
+      <li><strong>Latent diagnostic results persisted separately</strong> in
+        <code>results/module_latent_diagnostic.json</code>, explicitly marked
+        diagnostic-only.</li>
+      <li><strong>Source scripts and notebooks available in the repository</strong>, under
+        <code>src/</code> and <code>notebooks/</code>.</li>
+    </ul>
+
+    <p>Each figure on this page carries a caption consistent with
+      <code>figures/final/CAPTIONS.md</code>, which is the authoritative description of what
+      the figure set does and does not show.</p>
+
+    <div class="statement caution">
+      <p><strong>What this work does not show:</strong> no biological or clinical validation;
+        no statistical tests of the model differences and no significance claims; no causal
+        claim linking the
+        structural diagnostic to the predictive behaviour; no claim about corruption of
+        structural or network features; and no selected or recommended rejection
+        threshold.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <p>All data on this page are <strong>synthetic</strong>. The figures describe a simulated
+      data-generating process and a learning exercise; they are not biological results, they
+      do not describe real RNA measurements, and they do not establish biological or clinical
+      validity. Predictive relevance is not causal evidence.</p>
+    <p style="margin-bottom:0;">Every numeric value quoted above is transcribed from a saved
+      result file in <code>results/</code>, or from the rejection notebook where explicitly
+      marked. No number was introduced for this page.</p>
+  </div>
+</footer>
+
+</body>
+</html>
