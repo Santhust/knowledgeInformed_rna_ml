@@ -1,0 +1,427 @@
+{
+  "protocol": {
+    "name": "stratified 5-fold cross-validation",
+    "role": "PRIMARY protocol for M0-M3 comparison",
+    "n_splits": 5,
+    "random_state": 0,
+    "shuffle": true,
+    "fold_fingerprint": "9b587aa3d19a36f7",
+    "n": 800,
+    "preprocessing": "StandardScaler is inside the Pipeline, refit within each training fold. The test fold is never used for fitting.",
+    "hyperparameter_tuning": "none; specifications fixed in build_models()",
+    "models": [
+      "logistic_regression",
+      "hist_gradient_boosting"
+    ],
+    "reusable_by": "M1/M2/M3 must call cv_protocol.make_cv() and may assert cv_protocol.assert_identical_folds(y, folds) to prove they used the same partition."
+  },
+  "fold_test_index_first_row": [
+    0,
+    4,
+    3,
+    2,
+    7
+  ],
+  "summary_mean_std": {
+    "logistic_regression": {
+      "accuracy": {
+        "mean": 0.76,
+        "std": 0.021009670392464538,
+        "min": 0.73125,
+        "max": 0.775
+      },
+      "balanced_accuracy": {
+        "mean": 0.7433987010796221,
+        "std": 0.026359488046253966,
+        "min": 0.7135416666666667,
+        "max": 0.7682291666666667
+      },
+      "auroc": {
+        "mean": 0.8290127467105263,
+        "std": 0.015601991116279372,
+        "min": 0.8121744791666666,
+        "max": 0.848259109311741
+      },
+      "f1": {
+        "mean": 0.6872330870168257,
+        "std": 0.03741678953232158,
+        "min": 0.6434782608695652,
+        "max": 0.7230769230769231
+      },
+      "brier": {
+        "mean": 0.16428499595907464,
+        "std": 0.00908110794118584,
+        "min": 0.15226219830837992,
+        "max": 0.17245015074416775
+      }
+    },
+    "hist_gradient_boosting": {
+      "accuracy": {
+        "mean": 0.71875,
+        "std": 0.022534695471649945,
+        "min": 0.6875,
+        "max": 0.74375
+      },
+      "balanced_accuracy": {
+        "mean": 0.7027032726045883,
+        "std": 0.022415503503646735,
+        "min": 0.6692708333333333,
+        "max": 0.725506072874494
+      },
+      "auroc": {
+        "mean": 0.8054099717442644,
+        "std": 0.02333007101792269,
+        "min": 0.7842914979757085,
+        "max": 0.8353036437246963
+      },
+      "f1": {
+        "mean": 0.6399314026685943,
+        "std": 0.02806123739301506,
+        "min": 0.5967741935483871,
+        "max": 0.671875
+      },
+      "brier": {
+        "mean": 0.18238564090740822,
+        "std": 0.01367537963784136,
+        "min": 0.1683458750064528,
+        "max": 0.19989963406555503
+      }
+    }
+  },
+  "per_fold": {
+    "logistic_regression": [
+      {
+        "fold": 0,
+        "accuracy": 0.775,
+        "balanced_accuracy": 0.7682291666666667,
+        "auroc": 0.8121744791666666,
+        "precision": 0.7121212121212122,
+        "recall": 0.734375,
+        "f1": 0.7230769230769231,
+        "brier": 0.17245015074416775,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              77,
+              19
+            ],
+            [
+              17,
+              47
+            ]
+          ],
+          "tn": 77,
+          "fp": 19,
+          "fn": 17,
+          "tp": 47,
+          "n": 160,
+          "accuracy_from_counts": 0.775
+        }
+      },
+      {
+        "fold": 1,
+        "accuracy": 0.73125,
+        "balanced_accuracy": 0.7135416666666667,
+        "auroc": 0.8255208333333333,
+        "precision": 0.6779661016949152,
+        "recall": 0.625,
+        "f1": 0.6504065040650406,
+        "brier": 0.1681673954002592,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              77,
+              19
+            ],
+            [
+              24,
+              40
+            ]
+          ],
+          "tn": 77,
+          "fp": 19,
+          "fn": 24,
+          "tp": 40,
+          "n": 160,
+          "accuracy_from_counts": 0.73125
+        }
+      },
+      {
+        "fold": 2,
+        "accuracy": 0.775,
+        "balanced_accuracy": 0.7619433198380567,
+        "auroc": 0.848259109311741,
+        "precision": 0.7377049180327869,
+        "recall": 0.6923076923076923,
+        "f1": 0.7142857142857143,
+        "brier": 0.15226219830837992,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              79,
+              16
+            ],
+            [
+              20,
+              45
+            ]
+          ],
+          "tn": 79,
+          "fp": 16,
+          "fn": 20,
+          "tp": 45,
+          "n": 160,
+          "accuracy_from_counts": 0.775
+        }
+      },
+      {
+        "fold": 3,
+        "accuracy": 0.775,
+        "balanced_accuracy": 0.7570850202429149,
+        "auroc": 0.8419433198380567,
+        "precision": 0.7543859649122807,
+        "recall": 0.6615384615384615,
+        "f1": 0.7049180327868853,
+        "brier": 0.15707625269030603,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              81,
+              14
+            ],
+            [
+              22,
+              43
+            ]
+          ],
+          "tn": 81,
+          "fp": 14,
+          "fn": 22,
+          "tp": 43,
+          "n": 160,
+          "accuracy_from_counts": 0.775
+        }
+      },
+      {
+        "fold": 4,
+        "accuracy": 0.74375,
+        "balanced_accuracy": 0.7161943319838057,
+        "auroc": 0.8171659919028341,
+        "precision": 0.74,
+        "recall": 0.5692307692307692,
+        "f1": 0.6434782608695652,
+        "brier": 0.17146898265226024,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              82,
+              13
+            ],
+            [
+              28,
+              37
+            ]
+          ],
+          "tn": 82,
+          "fp": 13,
+          "fn": 28,
+          "tp": 37,
+          "n": 160,
+          "accuracy_from_counts": 0.74375
+        }
+      }
+    ],
+    "hist_gradient_boosting": [
+      {
+        "fold": 0,
+        "accuracy": 0.7125,
+        "balanced_accuracy": 0.7005208333333333,
+        "auroc": 0.791015625,
+        "precision": 0.640625,
+        "recall": 0.640625,
+        "f1": 0.640625,
+        "brier": 0.18499217630871465,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              73,
+              23
+            ],
+            [
+              23,
+              41
+            ]
+          ],
+          "tn": 73,
+          "fp": 23,
+          "fn": 23,
+          "tp": 41,
+          "n": 160,
+          "accuracy_from_counts": 0.7125
+        }
+      },
+      {
+        "fold": 1,
+        "accuracy": 0.6875,
+        "balanced_accuracy": 0.6692708333333333,
+        "auroc": 0.7906901041666667,
+        "precision": 0.6166666666666667,
+        "recall": 0.578125,
+        "f1": 0.5967741935483871,
+        "brier": 0.19989963406555503,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              73,
+              23
+            ],
+            [
+              27,
+              37
+            ]
+          ],
+          "tn": 73,
+          "fp": 23,
+          "fn": 27,
+          "tp": 37,
+          "n": 160,
+          "accuracy_from_counts": 0.6875
+        }
+      },
+      {
+        "fold": 2,
+        "accuracy": 0.7375,
+        "balanced_accuracy": 0.725506072874494,
+        "auroc": 0.825748987854251,
+        "precision": 0.6825396825396826,
+        "recall": 0.6615384615384615,
+        "f1": 0.671875,
+        "brier": 0.16888277454814984,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              75,
+              20
+            ],
+            [
+              22,
+              43
+            ]
+          ],
+          "tn": 75,
+          "fp": 20,
+          "fn": 22,
+          "tp": 43,
+          "n": 160,
+          "accuracy_from_counts": 0.7375
+        }
+      },
+      {
+        "fold": 3,
+        "accuracy": 0.7125,
+        "balanced_accuracy": 0.697165991902834,
+        "auroc": 0.7842914979757085,
+        "precision": 0.6557377049180327,
+        "recall": 0.6153846153846154,
+        "f1": 0.6349206349206349,
+        "brier": 0.18980774460816888,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              74,
+              21
+            ],
+            [
+              25,
+              40
+            ]
+          ],
+          "tn": 74,
+          "fp": 21,
+          "fn": 25,
+          "tp": 40,
+          "n": 160,
+          "accuracy_from_counts": 0.7125
+        }
+      },
+      {
+        "fold": 4,
+        "accuracy": 0.74375,
+        "balanced_accuracy": 0.7210526315789474,
+        "auroc": 0.8353036437246963,
+        "precision": 0.7222222222222222,
+        "recall": 0.6,
+        "f1": 0.6554621848739496,
+        "brier": 0.1683458750064528,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              80,
+              15
+            ],
+            [
+              26,
+              39
+            ]
+          ],
+          "tn": 80,
+          "fp": 15,
+          "fn": 26,
+          "tp": 39,
+          "n": 160,
+          "accuracy_from_counts": 0.74375
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,850 @@
+{
+  "protocol": {
+    "primary_protocol": "5-fold stratified cross-validation (see cross_validation)",
+    "diagnostic_protocol": "75/25 fixed holdout diagnostic split",
+    "diagnostic_split_caveat": "The 75/25 holdout is NOT an untouched final test set. Its held-out results were inspected while deciding how to handle the overfitting library-default boosting configuration, so the split is no longer independent of that modelling decision. It is retained for transparency and to keep the overfitting visible. It has NOT been re-run with a different seed, and must not be: cross-validation is the primary comparison protocol.",
+    "holdout_train_fraction": 0.75,
+    "holdout_test_fraction": 0.25,
+    "holdout_random_state": 0,
+    "preprocessing_fit_on": "training data only (StandardScaler inside Pipeline)",
+    "hyperparameter_tuning": "none. Logistic regression uses library defaults. The primary nonlinear baseline uses library defaults plus training-only early stopping, enabled because the default ensemble reached train AUROC 1.0000 (memorisation). The default variant is also reported so the overfitting stays visible.",
+    "features_used": [
+      "fret_error",
+      "fret_uncertainty",
+      "free_energy",
+      "stem_count",
+      "structural_consistency",
+      "gc_content",
+      "reg_feature_1",
+      "reg_feature_2",
+      "pathway_feature_1",
+      "pathway_feature_2",
+      "noise_feature_1",
+      "noise_feature_2"
+    ],
+    "reserved_comparisons_withheld": {
+      "fret_error_over_uncertainty": "fret_error / fret_uncertainty",
+      "regulatory_module_mean": "mean(reg_feature_1, reg_feature_2)",
+      "pathway_module_mean": "mean(pathway_feature_1, pathway_feature_2)",
+      "structural_interaction": "stem_count x structural_consistency term",
+      "prototype_distances": "distance to learned prototypes",
+      "knowledge_weights": "relevance weights from prior knowledge"
+    },
+    "latent_truth_used": false
+  },
+  "class_counts": {
+    "scope": "counts for the holdout diagnostic split; the primary CV protocol uses all 800 rows, see cross_validation.protocol.n",
+    "overall": {
+      "n": 800,
+      "n_plausible": 323,
+      "n_implausible": 477,
+      "plausible_rate": 0.40375
+    },
+    "holdout_train": {
+      "n": 600,
+      "n_plausible": 242,
+      "n_implausible": 358,
+      "plausible_rate": 0.4033333333333333
+    },
+    "holdout_test": {
+      "n": 200,
+      "n_plausible": 81,
+      "n_implausible": 119,
+      "plausible_rate": 0.405
+    }
+  },
+  "holdout_diagnostic": {
+    "logistic_regression": {
+      "train": {
+        "accuracy": 0.7616666666666667,
+        "balanced_accuracy": 0.7447135140126506,
+        "auroc": 0.8279237268571955,
+        "precision": 0.726027397260274,
+        "recall": 0.6570247933884298,
+        "f1": 0.6898047722342733,
+        "brier": 0.16444329997468002,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              298,
+              60
+            ],
+            [
+              83,
+              159
+            ]
+          ],
+          "tn": 298,
+          "fp": 60,
+          "fn": 83,
+          "tp": 159,
+          "n": 600,
+          "accuracy_from_counts": 0.7616666666666667
+        }
+      },
+      "test": {
+        "accuracy": 0.795,
+        "balanced_accuracy": 0.7823944392571843,
+        "auroc": 0.8671023965141612,
+        "precision": 0.7631578947368421,
+        "recall": 0.7160493827160493,
+        "f1": 0.7388535031847133,
+        "brier": 0.146087037671022,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              101,
+              18
+            ],
+            [
+              23,
+              58
+            ]
+          ],
+          "tn": 101,
+          "fp": 18,
+          "fn": 23,
+          "tp": 58,
+          "n": 200,
+          "accuracy_from_counts": 0.795
+        }
+      },
+      "train_minus_test": {
+        "accuracy": -0.033333333333333326,
+        "balanced_accuracy": -0.0376809252445337,
+        "auroc": -0.0391786696569657,
+        "f1": -0.049048730950440045,
+        "brier": 0.018356262303658027
+      },
+      "standardized_coefficients": [
+        {
+          "feature": "structural_consistency",
+          "coefficient": 0.5967726419443048,
+          "abs_coefficient": 0.5967726419443048,
+          "sign": 1
+        },
+        {
+          "feature": "pathway_feature_1",
+          "coefficient": 0.583399082445879,
+          "abs_coefficient": 0.583399082445879,
+          "sign": 1
+        },
+        {
+          "feature": "reg_feature_1",
+          "coefficient": 0.44936260560348995,
+          "abs_coefficient": 0.44936260560348995,
+          "sign": 1
+        },
+        {
+          "feature": "fret_error",
+          "coefficient": -0.3866772545926179,
+          "abs_coefficient": 0.3866772545926179,
+          "sign": -1
+        },
+        {
+          "feature": "noise_feature_1",
+          "coefficient": -0.26337308490212574,
+          "abs_coefficient": 0.26337308490212574,
+          "sign": -1
+        },
+        {
+          "feature": "stem_count",
+          "coefficient": 0.2221672200504793,
+          "abs_coefficient": 0.2221672200504793,
+          "sign": 1
+        },
+        {
+          "feature": "pathway_feature_2",
+          "coefficient": 0.20946068822616795,
+          "abs_coefficient": 0.20946068822616795,
+          "sign": 1
+        },
+        {
+          "feature": "noise_feature_2",
+          "coefficient": 0.17146447237145052,
+          "abs_coefficient": 0.17146447237145052,
+          "sign": 1
+        },
+        {
+          "feature": "reg_feature_2",
+          "coefficient": 0.1503168620698236,
+          "abs_coefficient": 0.1503168620698236,
+          "sign": 1
+        },
+        {
+          "feature": "fret_uncertainty",
+          "coefficient": -0.13947993043038923,
+          "abs_coefficient": 0.13947993043038923,
+          "sign": -1
+        },
+        {
+          "feature": "free_energy",
+          "coefficient": -0.13314071591430496,
+          "abs_coefficient": 0.13314071591430496,
+          "sign": -1
+        },
+        {
+          "feature": "gc_content",
+          "coefficient": 0.040613310223861075,
+          "abs_coefficient": 0.040613310223861075,
+          "sign": 1
+        }
+      ]
+    },
+    "hist_gradient_boosting": {
+      "train": {
+        "accuracy": 0.9433333333333334,
+        "balanced_accuracy": 0.9424719516136479,
+        "auroc": 0.97444480354587,
+        "precision": 0.9227642276422764,
+        "recall": 0.9380165289256198,
+        "f1": 0.930327868852459,
+        "brier": 0.06350169891480781,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              339,
+              19
+            ],
+            [
+              15,
+              227
+            ]
+          ],
+          "tn": 339,
+          "fp": 19,
+          "fn": 15,
+          "tp": 227,
+          "n": 600,
+          "accuracy_from_counts": 0.9433333333333334
+        }
+      },
+      "test": {
+        "accuracy": 0.765,
+        "balanced_accuracy": 0.7611266728913788,
+        "auroc": 0.8647162568731196,
+        "precision": 0.6976744186046512,
+        "recall": 0.7407407407407407,
+        "f1": 0.718562874251497,
+        "brier": 0.150634115879806,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              93,
+              26
+            ],
+            [
+              21,
+              60
+            ]
+          ],
+          "tn": 93,
+          "fp": 26,
+          "fn": 21,
+          "tp": 60,
+          "n": 200,
+          "accuracy_from_counts": 0.765
+        }
+      },
+      "train_minus_test": {
+        "accuracy": 0.17833333333333334,
+        "balanced_accuracy": 0.18134527872226913,
+        "auroc": 0.10972854667275045,
+        "f1": 0.211764994600962,
+        "brier": -0.08713241696499818
+      },
+      "permutation_importance": {
+        "method": "permutation importance, 30 repeats, scored by AUROC",
+        "computed_on": "holdout diagnostic split",
+        "interpretation": "Model-agnostic predictive relevance. NOT biological causality, and not evidence that a feature influences the underlying process. Computed without latent truth.",
+        "features": [
+          {
+            "feature": "fret_error",
+            "importance_mean": 0.014375626793927435,
+            "importance_std": 0.007081965082294751
+          },
+          {
+            "feature": "fret_uncertainty",
+            "importance_mean": 0.006439118857419494,
+            "importance_std": 0.006389386894718008
+          },
+          {
+            "feature": "free_energy",
+            "importance_mean": 0.0042155133658401435,
+            "importance_std": 0.004561682014742607
+          },
+          {
+            "feature": "stem_count",
+            "importance_mean": 0.006843725144378721,
+            "importance_std": 0.004314393896619557
+          },
+          {
+            "feature": "structural_consistency",
+            "importance_mean": 0.09112632707403949,
+            "importance_std": 0.014681185891752447
+          },
+          {
+            "feature": "gc_content",
+            "importance_mean": 0.0005394750492789813,
+            "importance_std": 0.0029977875730646778
+          },
+          {
+            "feature": "reg_feature_1",
+            "importance_mean": 0.025721893695749905,
+            "importance_std": 0.010511183874195279
+          },
+          {
+            "feature": "reg_feature_2",
+            "importance_mean": 0.01191340733824392,
+            "importance_std": 0.0070622005566773555
+          },
+          {
+            "feature": "pathway_feature_1",
+            "importance_mean": 0.028294774700003456,
+            "importance_std": 0.01222996893564382
+          },
+          {
+            "feature": "pathway_feature_2",
+            "importance_mean": 0.009458104229346039,
+            "importance_std": 0.00669865682138836
+          },
+          {
+            "feature": "noise_feature_1",
+            "importance_mean": 0.00014178510910535977,
+            "importance_std": 0.006119295226533899
+          },
+          {
+            "feature": "noise_feature_2",
+            "importance_mean": -0.001642632361586597,
+            "importance_std": 0.0036841558985807035
+          }
+        ]
+      }
+    },
+    "hist_gradient_boosting_default": {
+      "train": {
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "auroc": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "brier": 0.0022315074607095046,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              358,
+              0
+            ],
+            [
+              0,
+              242
+            ]
+          ],
+          "tn": 358,
+          "fp": 0,
+          "fn": 0,
+          "tp": 242,
+          "n": 600,
+          "accuracy_from_counts": 1.0
+        }
+      },
+      "test": {
+        "accuracy": 0.785,
+        "balanced_accuracy": 0.7739910779126465,
+        "auroc": 0.8494657122108102,
+        "precision": 0.7435897435897436,
+        "recall": 0.7160493827160493,
+        "f1": 0.7295597484276729,
+        "brier": 0.1685297156650208,
+        "confusion_matrix": {
+          "labels": [
+            0,
+            1
+          ],
+          "layout": "[[TN, FP], [FN, TP]]",
+          "counts": [
+            [
+              99,
+              20
+            ],
+            [
+              23,
+              58
+            ]
+          ],
+          "tn": 99,
+          "fp": 20,
+          "fn": 23,
+          "tp": 58,
+          "n": 200,
+          "accuracy_from_counts": 0.785
+        }
+      },
+      "train_minus_test": {
+        "accuracy": 0.21499999999999997,
+        "balanced_accuracy": 0.22600892208735346,
+        "auroc": 0.15053428778918976,
+        "f1": 0.2704402515723271,
+        "brier": -0.16629820820431132
+      }
+    }
+  },
+  "cross_validation": {
+    "protocol": {
+      "name": "stratified 5-fold cross-validation",
+      "role": "PRIMARY protocol for M0-M3 comparison",
+      "n_splits": 5,
+      "random_state": 0,
+      "shuffle": true,
+      "fold_fingerprint": "9b587aa3d19a36f7",
+      "n": 800,
+      "preprocessing": "StandardScaler is inside the Pipeline, refit within each training fold. The test fold is never used for fitting.",
+      "hyperparameter_tuning": "none; specifications fixed in build_models()",
+      "models": [
+        "logistic_regression",
+        "hist_gradient_boosting"
+      ],
+      "reusable_by": "M1/M2/M3 must call cv_protocol.make_cv() and may assert cv_protocol.assert_identical_folds(y, folds) to prove they used the same partition."
+    },
+    "fold_test_index_first_row": [
+      0,
+      4,
+      3,
+      2,
+      7
+    ],
+    "summary_mean_std": {
+      "logistic_regression": {
+        "accuracy": {
+          "mean": 0.76,
+          "std": 0.021009670392464538,
+          "min": 0.73125,
+          "max": 0.775
+        },
+        "balanced_accuracy": {
+          "mean": 0.7433987010796221,
+          "std": 0.026359488046253966,
+          "min": 0.7135416666666667,
+          "max": 0.7682291666666667
+        },
+        "auroc": {
+          "mean": 0.8290127467105263,
+          "std": 0.015601991116279372,
+          "min": 0.8121744791666666,
+          "max": 0.848259109311741
+        },
+        "f1": {
+          "mean": 0.6872330870168257,
+          "std": 0.03741678953232158,
+          "min": 0.6434782608695652,
+          "max": 0.7230769230769231
+        },
+        "brier": {
+          "mean": 0.16428499595907464,
+          "std": 0.00908110794118584,
+          "min": 0.15226219830837992,
+          "max": 0.17245015074416775
+        }
+      },
+      "hist_gradient_boosting": {
+        "accuracy": {
+          "mean": 0.71875,
+          "std": 0.022534695471649945,
+          "min": 0.6875,
+          "max": 0.74375
+        },
+        "balanced_accuracy": {
+          "mean": 0.7027032726045883,
+          "std": 0.022415503503646735,
+          "min": 0.6692708333333333,
+          "max": 0.725506072874494
+        },
+        "auroc": {
+          "mean": 0.8054099717442644,
+          "std": 0.02333007101792269,
+          "min": 0.7842914979757085,
+          "max": 0.8353036437246963
+        },
+        "f1": {
+          "mean": 0.6399314026685943,
+          "std": 0.02806123739301506,
+          "min": 0.5967741935483871,
+          "max": 0.671875
+        },
+        "brier": {
+          "mean": 0.18238564090740822,
+          "std": 0.01367537963784136,
+          "min": 0.1683458750064528,
+          "max": 0.19989963406555503
+        }
+      }
+    },
+    "per_fold": {
+      "logistic_regression": [
+        {
+          "fold": 0,
+          "accuracy": 0.775,
+          "balanced_accuracy": 0.7682291666666667,
+          "auroc": 0.8121744791666666,
+          "precision": 0.7121212121212122,
+          "recall": 0.734375,
+          "f1": 0.7230769230769231,
+          "brier": 0.17245015074416775,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                77,
+                19
+              ],
+              [
+                17,
+                47
+              ]
+            ],
+            "tn": 77,
+            "fp": 19,
+            "fn": 17,
+            "tp": 47,
+            "n": 160,
+            "accuracy_from_counts": 0.775
+          }
+        },
+        {
+          "fold": 1,
+          "accuracy": 0.73125,
+          "balanced_accuracy": 0.7135416666666667,
+          "auroc": 0.8255208333333333,
+          "precision": 0.6779661016949152,
+          "recall": 0.625,
+          "f1": 0.6504065040650406,
+          "brier": 0.1681673954002592,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                77,
+                19
+              ],
+              [
+                24,
+                40
+              ]
+            ],
+            "tn": 77,
+            "fp": 19,
+            "fn": 24,
+            "tp": 40,
+            "n": 160,
+            "accuracy_from_counts": 0.73125
+          }
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.775,
+          "balanced_accuracy": 0.7619433198380567,
+          "auroc": 0.848259109311741,
+          "precision": 0.7377049180327869,
+          "recall": 0.6923076923076923,
+          "f1": 0.7142857142857143,
+          "brier": 0.15226219830837992,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                79,
+                16
+              ],
+              [
+                20,
+                45
+              ]
+            ],
+            "tn": 79,
+            "fp": 16,
+            "fn": 20,
+            "tp": 45,
+            "n": 160,
+            "accuracy_from_counts": 0.775
+          }
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.775,
+          "balanced_accuracy": 0.7570850202429149,
+          "auroc": 0.8419433198380567,
+          "precision": 0.7543859649122807,
+          "recall": 0.6615384615384615,
+          "f1": 0.7049180327868853,
+          "brier": 0.15707625269030603,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                81,
+                14
+              ],
+              [
+                22,
+                43
+              ]
+            ],
+            "tn": 81,
+            "fp": 14,
+            "fn": 22,
+            "tp": 43,
+            "n": 160,
+            "accuracy_from_counts": 0.775
+          }
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.74375,
+          "balanced_accuracy": 0.7161943319838057,
+          "auroc": 0.8171659919028341,
+          "precision": 0.74,
+          "recall": 0.5692307692307692,
+          "f1": 0.6434782608695652,
+          "brier": 0.17146898265226024,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                82,
+                13
+              ],
+              [
+                28,
+                37
+              ]
+            ],
+            "tn": 82,
+            "fp": 13,
+            "fn": 28,
+            "tp": 37,
+            "n": 160,
+            "accuracy_from_counts": 0.74375
+          }
+        }
+      ],
+      "hist_gradient_boosting": [
+        {
+          "fold": 0,
+          "accuracy": 0.7125,
+          "balanced_accuracy": 0.7005208333333333,
+          "auroc": 0.791015625,
+          "precision": 0.640625,
+          "recall": 0.640625,
+          "f1": 0.640625,
+          "brier": 0.18499217630871465,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                73,
+                23
+              ],
+              [
+                23,
+                41
+              ]
+            ],
+            "tn": 73,
+            "fp": 23,
+            "fn": 23,
+            "tp": 41,
+            "n": 160,
+            "accuracy_from_counts": 0.7125
+          }
+        },
+        {
+          "fold": 1,
+          "accuracy": 0.6875,
+          "balanced_accuracy": 0.6692708333333333,
+          "auroc": 0.7906901041666667,
+          "precision": 0.6166666666666667,
+          "recall": 0.578125,
+          "f1": 0.5967741935483871,
+          "brier": 0.19989963406555503,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                73,
+                23
+              ],
+              [
+                27,
+                37
+              ]
+            ],
+            "tn": 73,
+            "fp": 23,
+            "fn": 27,
+            "tp": 37,
+            "n": 160,
+            "accuracy_from_counts": 0.6875
+          }
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.7375,
+          "balanced_accuracy": 0.725506072874494,
+          "auroc": 0.825748987854251,
+          "precision": 0.6825396825396826,
+          "recall": 0.6615384615384615,
+          "f1": 0.671875,
+          "brier": 0.16888277454814984,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                75,
+                20
+              ],
+              [
+                22,
+                43
+              ]
+            ],
+            "tn": 75,
+            "fp": 20,
+            "fn": 22,
+            "tp": 43,
+            "n": 160,
+            "accuracy_from_counts": 0.7375
+          }
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.7125,
+          "balanced_accuracy": 0.697165991902834,
+          "auroc": 0.7842914979757085,
+          "precision": 0.6557377049180327,
+          "recall": 0.6153846153846154,
+          "f1": 0.6349206349206349,
+          "brier": 0.18980774460816888,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                74,
+                21
+              ],
+              [
+                25,
+                40
+              ]
+            ],
+            "tn": 74,
+            "fp": 21,
+            "fn": 25,
+            "tp": 40,
+            "n": 160,
+            "accuracy_from_counts": 0.7125
+          }
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.74375,
+          "balanced_accuracy": 0.7210526315789474,
+          "auroc": 0.8353036437246963,
+          "precision": 0.7222222222222222,
+          "recall": 0.6,
+          "f1": 0.6554621848739496,
+          "brier": 0.1683458750064528,
+          "confusion_matrix": {
+            "labels": [
+              0,
+              1
+            ],
+            "layout": "[[TN, FP], [FN, TP]]",
+            "counts": [
+              [
+                80,
+                15
+              ],
+              [
+                26,
+                39
+              ]
+            ],
+            "tn": 80,
+            "fp": 15,
+            "fn": 26,
+            "tp": 39,
+            "n": 160,
+            "accuracy_from_counts": 0.74375
+          }
+        }
+      ]
+    }
+  },
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6"
+  }
+}
