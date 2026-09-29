@@ -6,6 +6,25 @@
 <title>Knowledge-Informed ML: When Better Structure Does Not Mean Better Prediction</title>
 <meta name="description" content="A controlled synthetic study of biological priors, interpretable prototype models, selective prediction, and robustness.">
 <link rel="stylesheet" href="style.css">
+<script>
+  // MathJax configuration must be defined before the script is loaded.
+  // Inline math: \( ... \)   Display math: \[ ... \]
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']],
+      processEscapes: true,
+      packages: { '[+]': null }
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+      ignoreHtmlClass: 'no-mathjax'
+    },
+    chtml: { scale: 1, matchFontHeight: false },
+    startup: { typeset: true }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
 </head>
 <body>
 
@@ -90,6 +109,9 @@
       <li><strong>latent variables retained only for diagnostic analysis</strong> — recorded
         for one figure, never used for training or tuning.</li>
     </ul>
+    <p class="scope-note">What those latent variables actually mean, and how the label is
+      produced from them, is set out in
+      <a href="#synthetic-data">Synthetic data generation</a>.</p>
   </div>
 
   <figure class="breakout">
@@ -102,8 +124,9 @@
       what is measured, and what a model may see. Panel A is the latent structure; Panel B
       is the measurement channel. The plausibility score is built from latent states only,
       so no observed feature causes it. The latent diagnostic truth is recorded but has no
-      arrow into the dataset. Schematic only — no data and no results. Verified against
-      the generator source.</figcaption>
+      arrow into the dataset. Each named quantity is defined in
+      <a href="#synthetic-data">Synthetic data generation</a>. Schematic only — no data and
+      no results. Verified against the generator source.</figcaption>
   </figure>
 
   <div class="wrap">
@@ -111,6 +134,316 @@
       <p>The simulator is designed to make otherwise hidden relationships observable. It is
         not intended to reproduce real RNA biophysics.</p>
     </div>
+  </div>
+</section>
+
+<!-- ================================================ SYNTHETIC DATA === -->
+<section id="synthetic-data">
+  <div class="wrap">
+    <p class="section-label">Synthetic data generation</p>
+    <h2>How the synthetic data were generated</h2>
+    <p class="lede">The dataset is not a recording of biology. It is the output of an
+      explicit generator whose hidden variables are written down, drawn, and then partly
+      hidden behind noise.</p>
+
+    <p>The point of the simulation is <strong>not</strong> to reproduce real RNA biophysics.
+      It is that the hidden generating variables are <em>known</em> to the author and can be
+      stored alongside the dataset. That makes three things directly comparable at once:
+      the latent biological structure, the noisy observed proxies of it, and whatever
+      predictive performance a model extracts. Having the latent truth on file is what
+      enables the diagnostic analysis in
+      <a href="#finding-2">Finding 2</a>, which would otherwise be impossible.</p>
+
+    <h3>Latent biological modules</h3>
+    <p>Every sample gets a single shared latent biological quality, written \(q\). Four
+      latent modules \(A, B, C, D\) each read out that shared quality <em>and</em> carry
+      their own module-specific variation:</p>
+
+    <div class="eq">\[ a_m = 0.6\,q + 0.8\,m_m \]</div>
+
+    <p>\(q\) is shared across all four modules. \(m_m\) is the module-specific term, drawn
+      independently for each module. The two coefficients are the numbers that make the
+      modules <strong>correlated but not identical</strong>: the shared part accounts for
+      36% of each module's variance and the module-specific part for 64%, so two modules
+      agree substantially but never coincide.</p>
+
+    <p>These are synthetic constructs, not measured biological modules. The names below
+      are labels for structure built into the generator:</p>
+    <ul>
+      <li><strong>Module B</strong> (labelled FRET-supported geometry) has two observed
+        pathway-like proxies.</li>
+      <li><strong>Module C</strong> (labelled regulatory interaction) has two observed
+        regulatory-like proxies.</li>
+      <li><strong>Modules A and D</strong> (structural stability; weak/noisy biology)
+        influence the latent plausibility score but have <strong>no direct model-facing
+        proxy at all</strong>.</li>
+    </ul>
+
+    <h3>Latent structural quantities and their noisy read-outs</h3>
+    <p>Three more latent quantities describe the candidate structure:
+      \(f_{\text{true}}\), a latent free-energy-like quantity; \(s_{\text{true}}\), a latent
+      stem-count-like quantity; and \(c_{\text{true}}\), a latent structural-consistency
+      quantity. <strong>The model never sees any of these values.</strong> What the model
+      receives instead are noisy proxies, following the generic pattern</p>
+
+    <div class="eq">\[ x_{\text{obs}} = x_{\text{true}} + \epsilon \]</div>
+
+    <p>where the observed variables are columns such as
+      <code>free_energy</code>, <code>stem_count</code> and
+      <code>structural_consistency</code>. This display is schematic: the free-energy
+      channel is sign-flipped, the stem count is rounded and clipped, and the FRET-like
+      channel below has its noise scaled per sample. Those exact forms are in the
+      appendix.</p>
+
+    <p class="scope-note">"Free-energy-like" and the related terms are synthetic
+      constructs. They are not outputs of any real RNA folding engine, folding algorithm,
+      or structure predictor, and they are not measurements.</p>
+
+    <h3>The FRET-like measurement process</h3>
+    <p>The FRET-like channel is deliberately exogenous: it is not driven by \(q\). Each
+      sample has a latent true distance \(z_{\text{true}}\), a distance implied by the
+      candidate structure \(d_{\text{candidate}}\), and a noisy observation
+      \(d_{\text{obs}}\). The signed mismatch between candidate and truth is
+      \(\Delta\), and the model-relevant magnitude is \(m_{\text{mag}} = |\Delta|\):</p>
+
+    <div class="eq">\[ d_{\text{candidate}} = z_{\text{true}} + \Delta
+       \qquad d_{\text{obs}} = z_{\text{true}} + \epsilon \]</div>
+
+    <p>The two model-facing columns are then read off as the disagreement between them and
+      the simulated measurement uncertainty:</p>
+
+    <div class="eq">\[ \texttt{fret_error} = \bigl| d_{\text{candidate}} - d_{\text{obs}} \bigr| \]</div>
+
+    <p><code>fret_error</code> is the absolute disagreement, so it is model-facing.
+      <code>fret_uncertainty</code> is the simulated measurement uncertainty for that
+      sample, also model-facing. <strong>Neither \(z_{\text{true}}\) nor
+      \(m_{\text{mag}}\) is ever given to a model</strong> — the label depends on the
+      magnitude, never on the sign of the mismatch.</p>
+
+    <h3>How the label is generated</h3>
+    <p>A latent plausibility score \(S\) is built from the latent biological, structural
+      and mismatch-related quantities only — never from any observed column. It is passed
+      through a sigmoid to give a hidden plausibility probability \(p\), and the binary
+      label is then <strong>sampled</strong> from it:</p>
+
+    <div class="eq">\[ p = \sigma(S) \qquad y \sim \mathrm{Bernoulli}(p) \]</div>
+
+    <p>Because the label is drawn rather than assigned deterministically, the two classes
+      overlap and no threshold in feature space separates them perfectly. This is what
+      keeps the classification task non-trivial. The equations above are a deliberately
+      compressed view; the full implemented generator, including the specific weights and
+      the nonlinear stem-count term, is in the appendix below.</p>
+
+    <h3>Latent-variable glossary</h3>
+    <div class="table-scroll">
+      <table class="glossary">
+        <caption>The latent variables and how visible they are to a model. Sufficient to
+          read Figure 1 without opening the source.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Symbol / variable</th>
+            <th scope="col">Plain-language meaning</th>
+            <th scope="col">Model-facing?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>\(q\)</td><td>Shared latent biological quality</td><td>No — latent only</td></tr>
+          <tr><td>\(a_A\)</td><td>Module A activity (labelled structural stability)</td><td>No — latent only</td></tr>
+          <tr><td>\(a_B\)</td><td>Module B activity (FRET-supported geometry)</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(a_C\)</td><td>Module C activity (regulatory interaction)</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(a_D\)</td><td>Module D activity (weak / noisy biology)</td><td>No — latent only</td></tr>
+          <tr><td>\(f_{\text{true}}\)</td><td>Latent free-energy-like quantity</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(s_{\text{true}}\)</td><td>Latent stem-count-like quantity</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(c_{\text{true}}\)</td><td>Latent structural-consistency quantity</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(z_{\text{true}}\)</td><td>Latent true FRET-like distance</td><td>No — latent only</td></tr>
+          <tr><td>\(m_{\text{mag}}\)</td><td>Magnitude of the candidate-vs-true mismatch</td><td>Indirectly through noisy proxies</td></tr>
+          <tr><td>\(p\)</td><td>Hidden plausibility probability</td><td>No — latent only</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="appendix">
+      <summary>Technical appendix: full synthetic generator</summary>
+
+      <div class="statement caution">
+        <p>These equations document the implemented synthetic generator for transparency
+          and reproducibility. They are <strong>not</strong> intended as a biological model
+          of RNA folding, FRET physics, or cellular regulation.</p>
+      </div>
+
+      <p class="appendix-note">Transcribed from <code>src/generate_data.py</code>. Every
+        coefficient and distribution below is the value actually implemented. Names set in
+        typewriter, such as \(\texttt{fret_error}\), are literal column names. The main
+        text uses \(\Delta\) for the signed mismatch; the implementation names it
+        <code>m_signed</code>, and <code>d_candidate</code> is named
+        <code>d_cand</code>.</p>
+
+      <h4>Sample size and seed</h4>
+      <div class="eq">\[ n = 800, \qquad \text{seed} = 20240617 \]</div>
+      <p>The generator is fully deterministic for a given (seed, n) pair.</p>
+
+      <h4>Stage 0 — shared latent factor and module activities</h4>
+      <div class="eq">\[ q \sim \mathcal{N}(0,\, 1) \]</div>
+      <p>Each module has its own independent standard-normal term
+        \(m_m \sim \mathcal{N}(0, 1)\), with the shared correlation
+        \(\rho = 0.6\) and module spread
+        \(\sqrt{1 - \rho^{2}} = \sqrt{0.64} = 0.8\):</p>
+      <div class="eq">\[
+        \begin{aligned}
+          a_A &= 0.6\,q + 0.8\,m_A,  &\qquad a_B &= 0.6\,q + 0.8\,m_B,\\
+          a_C &= 0.6\,q + 0.8\,m_C,  &\qquad a_D &= 0.6\,q + 0.8\,m_D
+        \end{aligned}
+      \]</div>
+      <p>Consequences fixed by these coefficients: each module correlates \(0.60\) with
+        \(q\); the shared component carries \(\rho^{2} = 36\%\) of each module's variance
+        and the module-specific component \(1 - \rho^{2} = 64\%\); modules are pairwise
+        correlated at \(\rho^{2} = 0.36\).</p>
+
+      <h4>Stage 1 — latent structural quantities</h4>
+      <div class="eq">\[
+        \begin{aligned}
+          f_{\text{true}} &= 0.80\,q + \eta_f,            & \eta_f &\sim \mathcal{N}(0,\, 0.60^{2}) \\
+          s_{\text{true}} &= 8.0 + 0.35\,q + \eta_s,       & \eta_s &\sim \mathcal{N}(0,\, 1.00^{2}) \\
+          c_{\text{true}} &= 0.85\,q + \eta_c,            & \eta_c &\sim \mathcal{N}(0,\, 0.50^{2})
+        \end{aligned}
+      \]</div>
+
+      <h4>Stage 1 — FRET-like measurement process</h4>
+      <p>The latent true distance is normal, and the measurement uncertainty is
+        log-normal, so uncertainty spans a range rather than sitting near one value:</p>
+      <div class="eq">\[
+        \begin{gathered}
+          z_{\text{true}} \sim \mathcal{N}(7.0,\, 1.50^{2}) \\
+          \sigma = \exp\!\bigl(\mathcal{N}(-1.9,\, 0.85^{2})\bigr)
+        \end{gathered}
+      \]</div>
+      <p>The candidate mismatch is a zero-mean signed deviation, and the label-relevant
+        quantity is its magnitude:</p>
+      <div class="eq">\[
+        \Delta \sim \mathcal{N}(0,\, 0.70^{2}),
+        \qquad m_{\text{mag}} = |\Delta|
+      \]</div>
+      <p>Candidate and observed distances are then formed, with the observation noise scaled
+        by that sample's own uncertainty:</p>
+      <div class="eq">\[
+        \begin{aligned}
+          d_{\text{candidate}} &= z_{\text{true}} + \Delta, \\
+          d_{\text{obs}} &= z_{\text{true}} + \sigma\,e,
+            & e &\sim \mathcal{N}(0,\, 1)
+        \end{aligned}
+      \]</div>
+      <p>Because \(\sigma\) is drawn independently of \(q\), it carries no label
+        information. This is a structural property of the design, and it is the reason
+        uncertainty-normalized FRET disagreement fails to beat raw
+        <code>fret_error</code> in this dataset — reported, not tuned away.</p>
+
+      <h4>Stage 2 — latent plausibility score, probability, label</h4>
+      <p>With the stem deviation
+        \(d = \dfrac{s_{\text{true}} - 8}{1.5}\), the score is</p>
+      <div class="eq">\[
+        \begin{aligned}
+          S ={}& -0.85\,m_{\text{mag}} + 0.55\,a_A + 0.45\,a_B \\
+             & + 0.40\,a_C + 0.12\,a_D \\
+             & + 0.35\,c_{\text{true}} + 0.40\,f_{\text{true}} \\
+             & - 0.35\,d^{2}
+                \;-\; 0.30\,\max(0, d)\,\max(0, -c_{\text{true}})
+        \end{aligned}
+      \]</div>
+      <p>The last line holds two distinct terms. The <strong>U-shaped stem-count
+        preference</strong> is \(-0.35\,d^{2}\): deviation from the preferred 8 stems is
+        penalised in either direction, which is why <code>stem_count</code> is explicitly
+        exempt from the univariate AUC band used for monotonic features. The
+        <strong>stem-inconsistency interaction</strong> is
+        \(-0.30\,\max(0, d)\,\max(0, -c_{\text{true}})\), which activates only when many
+        stems coincide with low internal consistency.</p>
+      <p>Note the signs: \(S\) is built from latent states only, so no observed feature
+        causes it, and the label depends on \(m_{\text{mag}}\) but never on the sign of
+        \(\Delta\).</p>
+      <p>The sigmoid has a scale of 1.1, and the label is drawn, not assigned:</p>
+      <div class="eq">\[
+        p = \sigma(1.1\,S) = \frac{1}{1 + e^{-1.1\,S}},
+        \qquad y \sim \mathrm{Bernoulli}(p)
+      \]</div>
+
+      <h4>Stage 3 — observed structural features</h4>
+      <div class="eq">\[
+        \begin{aligned}
+          \texttt{free_energy} &=
+            -\bigl(1.60 + 0.50\,f_{\text{true}}\bigr) + \varepsilon_1 \\
+          \texttt{stem_count} &=
+            \mathrm{round}\!\bigl(\mathrm{clip}(s_{\text{true}},\, 0,\, 20)\bigr) \\
+          \texttt{structural_consistency} & \\
+            & = \mathrm{clip}\!\bigl(0.50 + 0.18\,c_{\text{true}}
+              + \varepsilon_2,\, 0,\, 1\bigr)
+        \end{aligned}
+      \]</div>
+      <p>with \(\varepsilon_1 \sim \mathcal{N}(0,\, 0.70^{2})\) and
+        \(\varepsilon_2 \sim \mathcal{N}(0,\, 0.12^{2})\).</p>
+      <p>Note that <code>free_energy</code> is sign-flipped, so a <em>more negative</em>
+        value means a more stable, more plausible candidate — its raw signed AUC sits below
+        0.5 and only the direction-agnostic value is meaningful.</p>
+
+      <h4>Stage 3 — observed FRET-like features</h4>
+      <div class="eq">\[
+        \begin{aligned}
+          \texttt{fret_error} &= \bigl| d_{\text{candidate}} - d_{\text{obs}} \bigr| \\
+          \texttt{fret_uncertainty} &= \sigma
+        \end{aligned}
+      \]</div>
+      <p><code>fret_error</code> is an absolute value, so no simple variance formula is
+        claimed for it. Increasing the uncertainty \(\sigma\) broadens the observed
+        disagreement and weakens its evidential value: a large
+        <code>fret_error</code> measured with a large <code>fret_uncertainty</code> is weak
+        evidence, not strong evidence of implausibility.</p>
+
+      <h4>Stage 3 — GC content</h4>
+      <div class="eq">\[
+        \begin{aligned}
+          \texttt{gc_content} &=
+            \mathrm{clip}\!\bigl(0.50 + 0.01\,q + \varepsilon_3,\, 0.20,\, 0.80\bigr) \\
+          \varepsilon_3 &\sim \mathcal{N}(0,\, 0.10^{2})
+        \end{aligned}
+      \]</div>
+      <p>GC content belongs to no module and has no module-specific state. Its loading on
+        \(q\) is deliberately tiny, which makes it a <em>weak indirect</em> proxy for the
+        shared quality factor and nothing more.</p>
+
+      <h4>Stage 3 — module proxies</h4>
+      <p>Module C feeds the two regulatory-like columns and module B the two
+        pathway-like columns, each as a noisy read-out of one shared state:</p>
+      <div class="eq">\[
+        \begin{aligned}
+          \texttt{reg_feature_1}     &= a_C + \mathcal{N}(0,\, 0.70^{2}) \\
+          \texttt{reg_feature_2}     &= a_C + \mathcal{N}(0,\, 0.85^{2}) \\
+          \texttt{pathway_feature_1} &= a_B + \mathcal{N}(0,\, 0.70^{2}) \\
+          \texttt{pathway_feature_2} &= a_B + \mathcal{N}(0,\, 0.85^{2})
+        \end{aligned}
+      \]</div>
+      <p>Each module therefore has two noisy proxies of one state, so aggregating within a
+        module reduces proxy noise — the property the module prior in
+        <a href="#finding-2">Finding 2</a> exploits. Modules A and D have no proxy, so
+        their module-specific variation is unavailable to any model; their shared
+        component may still be inferred indirectly.</p>
+
+      <h4>Stage 3 — correlated label-irrelevant distractors</h4>
+      <p>The two noise columns are correlated with each other at exactly 0.70 and carry no
+        information about \(q\), any module state, or the label. The unit-variance
+        shared-factor form is used, with \(e, u_1, u_2 \sim \mathcal{N}(0,1)\) and
+        \(c = \sqrt{0.70 / 0.30}\):</p>
+      <div class="eq">\[
+        \begin{aligned}
+          \texttt{noise_feature_1} &= c\,e + u_1 \\
+          \texttt{noise_feature_2} &= c\,e + u_2
+        \end{aligned}
+      \]</div>
+
+      <h4>What is not shown here</h4>
+      <p>The oracle Bayes-accuracy ceiling, the per-feature AUC tables, the multi-seed
+        calibration, and the monotonic transforms used for univariate diagnostics are
+        computed by the same module but are not part of the generative process, so they are
+        not reproduced as equations. The twelve observed
+        columns and the label are the only model-facing outputs.</p>
+    </details>
   </div>
 </section>
 

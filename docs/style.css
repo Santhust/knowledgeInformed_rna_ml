@@ -307,6 +307,36 @@ details summary::marker { color: var(--accent); }
 
 details figure { margin: 1.2rem 0 0.3rem; }
 
+/* --------------------------------------------------------------- math --- */
+
+/* Display equations: centred by default, separated from prose, and scrollable
+   rather than widening the page when they do not fit. */
+.eq {
+  margin: 1.15rem 0 1.3rem;
+  padding: 0.1rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.eq mjx-container[display="true"] { margin: 0.6em 0 !important; }
+
+/* Inline math should sit on the text baseline without inflating line height. */
+.eq mjx-container:not([display="true"]) { line-height: normal; }
+
+.glossary th, .glossary td { vertical-align: top; }
+
+/* ----------------------------------------------------------- appendix --- */
+
+details.appendix { margin-top: 2rem; }
+details.appendix h4 { margin-top: 1.7rem; font-size: 0.92rem; }
+details.appendix h4:first-of-type { margin-top: 1.4rem; }
+details.appendix p { font-size: 0.94rem; }
+
+.appendix-note {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
 /* ------------------------------------------------------------- tables --- */
 
 .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
@@ -427,6 +457,17 @@ td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .fig-frame { border-left: 0; border-right: 0; padding: 0.4rem; }
   figcaption { padding: 0 1rem; }
   h1 { max-width: none; }
+  /* Slightly smaller display math on narrow screens. Equations that still do
+     not fit scroll inside their own box; left-aligning them keeps the
+     overflow on the right, where it stays reachable, instead of clipping it
+     on both sides. */
+  .eq { margin: 0.9rem 0 1rem; }
+  .eq mjx-container[display="true"] {
+    font-size: 90% !important;
+    text-align: left !important;
+  }
+  .eq mjx-container[display="true"] mjx-math { text-align: left !important; }
+  .glossary th, .glossary td { padding: 0.45rem 0.4rem; }
 }
 
 @media (max-width: 420px) {
